@@ -1,0 +1,58 @@
+name: Compilar APK Android
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Generar APKs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias
+        run: npm install --no-audit --no-fund
+
+      - name: Preparar aplicación web y configuración Android
+        run: npm run build:web
+
+      - name: Crear proyecto Android con Capacitor
+        run: npx cap add android
+
+      - name: Sincronizar archivos web
+        run: npx cap sync android
+
+      - name: Compilar APK debug y release
+        working-directory: android
+        run: ./gradlew --no-daemon assembleDebug assembleRelease
+
+      - name: Publicar APKs como artefacto descargable
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks-android-${{ github.run_number }}
+          path: android/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 30
