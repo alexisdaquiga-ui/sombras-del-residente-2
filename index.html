@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Cargando...</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ==========================================================
+       ESTILOS DE ACCESIBILIDAD 100% AVANZADA (WCAG AAA)
+       ================================================---------- */
+
+    /* Enlace de salto para usuarios de teclado/lectores de pantalla */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: #ff0;
+      color: #000;
+      padding: 8px 16px;
+      z-index: 100000;
+      font-weight: bold;
+      transition: top 0.2s ease;
+    }
+    .skip-link:focus {
+      top: 0;
+    }
+
+    /* Indicador de foco ultra visible para navegación por teclado */
+    *:focus-visible {
+      outline: 4px solid #00ffff !important;
+      outline-offset: 4px !important;
+      box-shadow: 0 0 10px #00ffff !important;
+    }
+
+    /* Barra de herramientas de accesibilidad flotante */
+    .accessibility-toolbar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #111;
+      border: 2px solid #fff;
+      padding: 12px;
+      border-radius: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      max-width: 320px;
+    }
+    .accessibility-toolbar button {
+      background: #222;
+      color: #fff;
+      border: 1px solid #777;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .accessibility-toolbar button:hover,
+    .accessibility-toolbar button:focus {
+      background: #333;
+    }
+
+    /* Modos de accesibilidad avanzados */
+    body.high-contrast {
+      background-color: #000 !important;
+      color: #ffff00 !important;
+    }
+    body.high-contrast .card, 
+    body.high-contrast header, 
+    body.high-contrast footer,
+    body.high-contrast .accessibility-toolbar {
+      background-color: #000 !important;
+      border: 2px solid #ffff00 !important;
+      color: #ffff00 !important;
+    }
+    body.high-contrast button {
+      background-color: #ffff00 !important;
+      color: #000 !important;
+      border-color: #ffff00 !important;
+    }
+
+    body.font-large {
+      font-size: 1.35rem !important;
+    }
+
+    body.dyslexia-font {
+      font-family: 'Comic Sans MS', 'Arial', sans-serif !important;
+      letter-spacing: 0.08em !important;
+      word-spacing: 0.15em !important;
+      line-height: 1.8 !important;
+    }
+
+    /* Región oculta visualmente pero leída por lectores de pantalla */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Enlace para saltar al contenido principal (vital para lectores de pantalla y teclado) -->
+  <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+  <!-- Región para anuncios dinámicos de cambios de estado (para lectores de pantalla) -->
+  <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Barra de Herramientas de Accesibilidad 100% -->
+  <aside class="accessibility-toolbar" aria-label="Panel de control de accesibilidad">
+    <button onclick="toggleContraste()" aria-pressed="false" id="btn-contrast">Alto Contraste</button>
+    <button onclick="cambiarFuente()" aria-pressed="false" id="btn-font">Texto Grande</button>
+    <button onclick="toggleDyslexia()" aria-pressed="false" id="btn-dyslexia">Fuente Dislexia</button>
+    <button onclick="resetAccesibilidad()">Restablecer</button>
+  </aside>
+
+  <div class="app-container">
+    <header role="banner">
+      <h1 id="app-title" tabindex="0">Cargando...</h1>
+      <p id="app-subtitle">Iniciando sistema...</p>
+    </header>
+
+    <main id="main-content" class="app-content" role="main" tabindex="-1">
+      <div class="card" role="region" aria-label="Espacio de trabajo principal">
+        <p>Espacio de trabajo sincronizado correctamente.</p>
+        <button onclick="ejecutarAccionPrincipal()" aria-describedby="desc-accion">Ejecutar</button>
+        <span id="desc-accion" class="sr-only">Pulsa este botón para procesar la acción principal del sistema.</span>
+      </div>
+    </main>
+
+    <footer role="contentinfo">
+      <p id="app-footer">© 2026</p>
+    </footer>
+  </div>
+
+  <script>
+    // Función auxiliar para anunciar cambios a lectores de pantalla
+    function anunciar(mensaje) {
+      const announcer = document.getElementById('sr-announcer');
+      announcer.innerText = '';
+      setTimeout(() => { announcer.innerText = mensaje; }, 100);
+    }
+
+    // Carga automática de los datos de la app y metadatos accesibles
+    fetch('config.json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('page-title').innerText = data.appName;
+        document.getElementById('app-title').innerText = data.appName;
+        document.getElementById('app-subtitle').innerText = data.appSubtitle;
+        document.getElementById('app-footer').innerText = `Creado por ${data.author} - ${data.year}`;
+        
+        if(data.appLang) {
+          document.documentElement.lang = data.appLang;
+        }
+        anunciar(`Aplicación ${data.appName} cargada correctamente.`);
+      })
+      .catch(error => {
+        console.error('Error al cargar la configuración:', error);
+        anunciar('Error al cargar la configuración de la aplicación.');
+      });
+
+    // Funciones avanzadas de accesibilidad con persistencia y atributos ARIA actualizados
+    function toggleContraste() {
+      document.body.classList.toggle('high-contrast');
+      const activo = document.body.classList.contains('high-contrast');
+      localStorage.setItem('accessibility_contrast', activo);
+      document.getElementById('btn-contrast').setAttribute('aria-pressed', activo);
+      anunciar(activo ? 'Alto contraste activado' : 'Alto contraste desactivado');
+    }
+
+    function cambiarFuente() {
+      document.body.classList.toggle('font-large');
+      const activo = document.body.classList.contains('font-large');
+      localStorage.setItem('accessibility_font', activo);
+      document.getElementById('btn-font').setAttribute('aria-pressed', activo);
+      anunciar(activo ? 'Tamaño de texto grande activado' : 'Tamaño de texto normal');
+    }
+
+    function toggleDyslexia() {
+      document.body.classList.toggle('dyslexia-font');
+      const activo = document.body.classList.contains('dyslexia-font');
+      localStorage.setItem('accessibility_dyslexia', activo);
+      document.getElementById('btn-dyslexia').setAttribute('aria-pressed', activo);
+      anunciar(activo ? 'Tipografía optimizada para dislexia activada' : 'Tipografía estándar');
+    }
+
+    function resetAccesibilidad() {
+      document.body.classList.remove('high-contrast', 'font-large', 'dyslexia-font');
+      localStorage.removeItem('accessibility_contrast');
+      localStorage.removeItem('accessibility_font');
+      localStorage.removeItem('accessibility_dyslexia');
+      
+      document.getElementById('btn-contrast').setAttribute('aria-pressed', 'false');
+      document.getElementById('btn-font').setAttribute('aria-pressed', 'false');
+      document.getElementById('btn-dyslexia').setAttribute('aria-pressed', 'false');
+      anunciar('Ajustes de accesibilidad restablecidos');
+    }
+
+    // Carga automática de preferencias del usuario al iniciar la página
+    window.addEventListener('DOMContentLoaded', () => {
+      if(localStorage.getItem('accessibility_contrast') === 'true') {
+        document.body.classList.add('high-contrast');
+        document.getElementById('btn-contrast').setAttribute('aria-pressed', 'true');
+      }
+      if(localStorage.getItem('accessibility_font') === 'true') {
+        document.body.classList.add('font-large');
+        document.getElementById('btn-font').setAttribute('aria-pressed', 'true');
+      }
+      if(localStorage.getItem('accessibility_dyslexia') === 'true') {
+        document.body.classList.add('dyslexia-font');
+        document.getElementById('btn-dyslexia').setAttribute('aria-pressed', 'true');
+      }
+    });
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>          
